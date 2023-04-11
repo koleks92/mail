@@ -20,7 +20,23 @@ function compose_email() {
   document.querySelector('#compose-recipients').value = '';
   document.querySelector('#compose-subject').value = '';
   document.querySelector('#compose-body').value = '';
+
+  fetch('/emails', {
+    method: 'POST',
+    body: JSON.stringify({
+        recipients: 'user@email.com',
+        subject: 'Meeting time',
+        body: 'How about we meet tomorrow at 3pm?'
+    })
+  })
+  .then(response => response.json())
+  .then(result => {
+      // Print result
+      console.log(result);
+  });
 }
+
+
 
 function load_mailbox(mailbox) {
   
@@ -30,4 +46,21 @@ function load_mailbox(mailbox) {
 
   // Show the mailbox name
   document.querySelector('#emails-view').innerHTML = `<h3>${mailbox.charAt(0).toUpperCase() + mailbox.slice(1)}</h3>`;
+
+  // Get emails
+  // Send a GET request to the URL
+  if (mailbox === 'inbox') {
+    fetch(`/emails/${mailbox}`)
+  // Put response into json form
+  .then(response => response.json())
+  .then(data => {
+      // Log data to the console
+      console.log(data);
+
+  });
+  }
+  
+
 }
+
+
