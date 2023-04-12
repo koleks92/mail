@@ -30,6 +30,17 @@ function email_to_html(obj) {
           timestamp.innerHTML = obj.timestamp;
           email.append(timestamp);
 
+          const archive = document.createElement('button');
+          if (obj.archived === true)
+          {
+            archive.innerHTML = "Unarchive";
+          }
+          else
+          {
+            archive.innerHTML = "Archive";
+          }
+          email.append(archive);
+
           // Send whole div to html
           document.querySelector("#emails").appendChild(email);
 }
@@ -95,7 +106,10 @@ function load_mailbox(mailbox) {
       data.forEach(obj => {
         if (mailbox === 'inbox') 
         {
+          if (obj.archived === false)
+          {
             email_to_html(obj);
+          }
         }
         else if (mailbox === 'archived') 
         {
@@ -115,9 +129,6 @@ function load_mailbox(mailbox) {
 
 
   });
-
-  
-
 }
 
 
