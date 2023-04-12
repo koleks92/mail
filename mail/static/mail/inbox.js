@@ -10,6 +10,30 @@ document.addEventListener('DOMContentLoaded', function() {
   load_mailbox('inbox');
 });
 
+function email_to_html(obj) {
+  const email = document.createElement('div');
+          if (obj.read === true) {
+            email.classList.add("read");
+          }
+          email.classList.add("email");
+
+          // Create and append for each attribute
+          const sender = document.createElement('div');
+          sender.innerHTML = obj.sender;
+          email.append(sender);
+
+          const subject = document.createElement('div');
+          subject.innerHTML = obj.subject;
+          email.append(subject);
+
+          const timestamp = document.createElement('div');
+          timestamp.innerHTML = obj.timestamp;
+          email.append(timestamp);
+
+          // Send whole div to html
+          document.querySelector("#emails").appendChild(email);
+}
+
 function compose_email() 
 {
   // Show compose view and hide other views
@@ -48,8 +72,6 @@ function compose_email()
 }
 
 
-
-
 function load_mailbox(mailbox) {
   
   // Show the mailbox and hide other views
@@ -57,20 +79,43 @@ function load_mailbox(mailbox) {
   document.querySelector('#compose-view').style.display = 'none';
 
   // Show the mailbox name
-  document.querySelector('#emails-view').innerHTML = `<h3>${mailbox.charAt(0).toUpperCase() + mailbox.slice(1)}</h3>`;
+  document.querySelector('#title').innerHTML = `${mailbox.charAt(0).toUpperCase() + mailbox.slice(1)}`;
 
-  // Get emails
-  // Send a GET request to the URL
-  if (mailbox === 'inbox') {
-    fetch(`/emails/${mailbox}`)
+  // Clear emails to avoid double loading
+  document.querySelector('#emails').innerHTML = '';
+
+  let user_email = document.querySelector('#user_email').textContent;
+
+  fetch(`/emails/${mailbox}`)
   // Put response into json form
   .then(response => response.json())
   .then(data => {
-      // Log data to the console
       console.log(data);
+      // Log data to the console
+      data.forEach(obj => {
+        if (mailbox === 'inbox') 
+        {
+            email_to_html(obj);
+        }
+        else if (mailbox === 'archived') 
+        {
+          if (obj.archived === true) 
+          {
+            email_to_html(obj);
+          }
+        }
+        if (mailbox === 'sent') 
+        {
+          if (obj.sender === user_email)
+          {
+            email_to_html(obj);
+          }
+        }        
+      });
+
 
   });
-  }
+
   
 
 }
