@@ -10,8 +10,8 @@ document.addEventListener('DOMContentLoaded', function() {
   load_mailbox('inbox');
 });
 
-function compose_email() {
-
+function compose_email() 
+{
   // Show compose view and hide other views
   document.querySelector('#emails-view').style.display = 'none';
   document.querySelector('#compose-view').style.display = 'block';
@@ -21,20 +21,32 @@ function compose_email() {
   document.querySelector('#compose-subject').value = '';
   document.querySelector('#compose-body').value = '';
 
-  fetch('/emails', {
-    method: 'POST',
-    body: JSON.stringify({
-        recipients: 'user@email.com',
-        subject: 'Meeting time',
-        body: 'How about we meet tomorrow at 3pm?'
-    })
-  })
-  .then(response => response.json())
-  .then(result => {
-      // Print result
-      console.log(result);
-  });
+
+    // Select button and content
+    const recipients = document.querySelector("#compose-recipients");
+    const subject = document.querySelector('#compose-subject');
+    const body = document.querySelector('#compose-body');
+
+
+    document.querySelector('form').onsubmit = () => {
+      fetch('/emails', {
+        method: 'POST',
+        body: JSON.stringify({
+            recipients: recipients.value,
+            subject: subject.value,
+            body: body.value
+        })
+      })
+      .then(response => response.json())
+      .then(result => {
+          // Print result
+          console.log(result);
+          console.log(recipients.value);
+      });
+      return false;
+    }
 }
+
 
 
 
