@@ -6,75 +6,104 @@ document.addEventListener('DOMContentLoaded', function() {
   document.querySelector('#archived').addEventListener('click', () => load_mailbox('archive'));
   document.querySelector('#compose').addEventListener('click', compose_email);
 
+
   // By default, load the inbox
   load_mailbox('inbox');
 });
 
-function email_to_html(obj, arch) {
+function email_to_html(obj) {
   const email = document.createElement('div');
-          if (obj.read === true) {
-            email.classList.add("read");
-          }
-          email.classList.add("email");
+  // Finish
 
-          // Create and append for each attribute
-          const sender = document.createElement('div');
-          sender.innerHTML = obj.sender;
-          email.append(sender);
 
-          const subject = document.createElement('div');
-          subject.innerHTML = obj.subject;
-          email.append(subject);
 
-          const timestamp = document.createElement('div');
-          timestamp.innerHTML = obj.timestamp;
-          email.append(timestamp);
+}
 
-          if (arch === true) 
-          {
-            // Button for archive
-          const archive = document.createElement('button');
-          archive.classList.add("archive")
-          archive.id=obj.id
-          if (obj.archived === true)
-          {
-            archive.innerHTML = "Unarchive";
-          }
-          else
-          {
-            archive.innerHTML = "Archive";
-          }
+function mark_as_read(obj) {
+  fetch(`/emails/${obj}`, {
+    method: 'PUT',
+    body: JSON.stringify({
+        read: true
+    })
+  })
+}
 
-          // EventListener for button archive
-          archive.addEventListener('click', function() {
-            if (archive.textContent === "Archive")
-            { // Set archived true
-              fetch(`/emails/${obj.id}`, {
-                method: 'PUT',
-                body: JSON.stringify({
-                    archived: true
-                })
-              })
-              .then(location.reload());
-            }
-            else
-            { // Set archived false
-              fetch(`/emails/${obj.id}`, {
-                method: 'PUT',
-                body: JSON.stringify({
-                    archived: false
-                })
-              })
-              .then(location.reload());
-            }
-            
-          });
-          email.append(archive);
+function emails_to_html(obj, arch) {
+  const email = document.createElement('div');
+  if (obj.read === true) 
+  {
+    email.classList.add("read");
+  }
+  email.classList.add("email");
 
-          }
-          
-          // Send whole div to html
-          document.querySelector("#emails").appendChild(email);
+  // Create and append for each attribute
+  const sender = document.createElement('div');
+  sender.innerHTML = obj.sender;
+  email.append(sender);
+
+  // Subject + link to 
+  const subject = document.createElement('div');
+  subject.innerHTML = obj.subject;
+  email.append(subject);
+
+  const timestamp = document.createElement('div');
+  timestamp.innerHTML = obj.timestamp;
+  email.append(timestamp);
+
+  if (arch === true) 
+  {
+    // Button for archive
+  const archive = document.createElement('button');
+  archive.classList.add("archive")
+  archive.id = obj.id
+  if (obj.archived === true)
+  {
+    archive.innerHTML = "Unarchive";
+  }
+  else
+  {
+    archive.innerHTML = "Archive";
+  }
+
+  // EventListener for button archive
+  archive.addEventListener('click', function() 
+  {
+    if (archive.textContent === "Archive")
+    { // Set archived true
+      fetch(`/emails/${obj.id}`, 
+      {
+        method: 'PUT',
+        body: JSON.stringify
+        ({
+            archived: true
+        })
+      })
+      .then(location.reload());
+    }
+    else
+    { // Set archived false
+      fetch(`/emails/${obj.id}`,
+      {
+        method: 'PUT',
+        body: JSON.stringify
+        ({
+            archived: false
+        })
+      })
+      .then(location.reload());
+    }
+    
+  });
+  email.append(archive);
+
+  }
+
+  email.addEventListener('click', function() {
+    load_email(obj.id)
+  });
+  
+  // Send whole div to html
+  document.querySelector("#emails").appendChild(email);
 }
 
 function compose_email() 
@@ -82,6 +111,7 @@ function compose_email()
   // Show compose view and hide other views
   document.querySelector('#emails-view').style.display = 'none';
   document.querySelector('#compose-view').style.display = 'block';
+  document.querySelector('#email-view').style.display = 'none';
 
   // Clear out composition fields
   document.querySelector('#compose-recipients').value = '';
@@ -95,17 +125,21 @@ function compose_email()
     const body = document.querySelector('#compose-body');
 
 
-    document.querySelector('form').onsubmit = () => {
-      fetch('/emails', {
+    document.querySelector('form').onsubmit = () => 
+    {
+      fetch('/emails', 
+      {
         method: 'POST',
-        body: JSON.stringify({
+        body: JSON.stringify
+        ({
             recipients: recipients.value,
             subject: subject.value,
             body: body.value
         })
       })
       .then(response => response.json())
-      .then(result => {
+      .then(result => 
+      {
           // Print result
           console.log(result);
       });
@@ -119,6 +153,8 @@ function load_mailbox(mailbox) {
   // Show the mailbox and hide other views
   document.querySelector('#emails-view').style.display = 'block';
   document.querySelector('#compose-view').style.display = 'none';
+  document.querySelector('#email-view').style.display = 'none';
+
 
   // Show the mailbox name
   document.querySelector('#title').innerHTML = `${mailbox.charAt(0).toUpperCase() + mailbox.slice(1)}`;
@@ -126,7 +162,10 @@ function load_mailbox(mailbox) {
   // Clear emails to avoid double loading
   document.querySelector('#emails').innerHTML = '';
 
+
+  // Get loggedin user email
   let user_email = document.querySelector('#user_email').textContent;
+  // Boolean for archvie button
   let arch = true;
 
   fetch(`/emails/${mailbox}`)
@@ -141,7 +180,7 @@ function load_mailbox(mailbox) {
           if (obj.archived === false)
           {
             arch = true;
-            email_to_html(obj, arch);
+            emails_to_html(obj, arch);
           }
         }
         else if (mailbox === 'archive') 
@@ -149,7 +188,7 @@ function load_mailbox(mailbox) {
           if (obj.archived === true) 
           {
             arch = true;
-            email_to_html(obj, arch);
+            emails_to_html(obj, arch);
           }
         }
         if (mailbox === 'sent') 
@@ -157,12 +196,29 @@ function load_mailbox(mailbox) {
           if (obj.sender === user_email)
           {
             arch = false;
-            email_to_html(obj);
+            emails_to_html(obj, arch);
           }
         }        
       });
 
   });
+}
+
+function load_email(mail)
+{
+  // Show the mailbox and hide other views
+  document.querySelector('#emails-view').style.display = 'none';
+  document.querySelector('#compose-view').style.display = 'none';
+  document.querySelector('#email-view').style.display = 'block';
+
+  fetch(`/emails/${mail}`)
+  .then(response => response.json())
+  .then(email => {
+    // Mark as read
+    mark_as_read(email.id);
+
+    document.querySelector('#email-view').innerHTML = email.sender;
+});
 }
 
 
