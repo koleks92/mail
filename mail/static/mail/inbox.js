@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', function() {
   load_mailbox('inbox');
 });
 
-function email_to_html(obj) {
+function email_to_html(obj, arch) {
   const email = document.createElement('div');
           if (obj.read === true) {
             email.classList.add("read");
@@ -30,7 +30,12 @@ function email_to_html(obj) {
           timestamp.innerHTML = obj.timestamp;
           email.append(timestamp);
 
+          if (arch === true) 
+          {
+            // Button for archive
           const archive = document.createElement('button');
+          archive.classList.add("archive")
+          archive.id=obj.id
           if (obj.archived === true)
           {
             archive.innerHTML = "Unarchive";
@@ -39,8 +44,35 @@ function email_to_html(obj) {
           {
             archive.innerHTML = "Archive";
           }
+
+          // EventListener for button archive
+          archive.addEventListener('click', function() {
+            if (archive.textContent === "Archive")
+            { // Set archived true
+              fetch(`/emails/${obj.id}`, {
+                method: 'PUT',
+                body: JSON.stringify({
+                    archived: true
+                })
+              })
+              .then(location.reload());
+            }
+            else
+            { // Set archived false
+              fetch(`/emails/${obj.id}`, {
+                method: 'PUT',
+                body: JSON.stringify({
+                    archived: false
+                })
+              })
+              .then(location.reload());
+            }
+            
+          });
           email.append(archive);
 
+          }
+          
           // Send whole div to html
           document.querySelector("#emails").appendChild(email);
 }
@@ -76,7 +108,6 @@ function compose_email()
       .then(result => {
           // Print result
           console.log(result);
-          console.log(recipients.value);
       });
       return false;
     }
@@ -96,6 +127,7 @@ function load_mailbox(mailbox) {
   document.querySelector('#emails').innerHTML = '';
 
   let user_email = document.querySelector('#user_email').textContent;
+  let arch = true;
 
   fetch(`/emails/${mailbox}`)
   // Put response into json form
@@ -108,25 +140,27 @@ function load_mailbox(mailbox) {
         {
           if (obj.archived === false)
           {
-            email_to_html(obj);
+            arch = true;
+            email_to_html(obj, arch);
           }
         }
-        else if (mailbox === 'archived') 
+        else if (mailbox === 'archive') 
         {
           if (obj.archived === true) 
           {
-            email_to_html(obj);
+            arch = true;
+            email_to_html(obj, arch);
           }
         }
         if (mailbox === 'sent') 
         {
           if (obj.sender === user_email)
           {
+            arch = false;
             email_to_html(obj);
           }
         }        
       });
-
 
   });
 }
