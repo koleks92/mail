@@ -12,17 +12,18 @@
     <hr>
 
     <div id="emails-view">
-        <h3 id="title"></h3>
+        <h3 id="emails-title"></h3>
         <div id="emails">
         </div>
     </div>
 
     <div id="email-view">
+        <div id="email"></div>
         
     </div>
 
     <div id="compose-view">
-        <h3>New Email</h3>
+        <h3 id="compose-title"></h3>
         <form id="compose-form">
             <div class="form-group">
                 From: <input disabled class="form-control" value="{{ request.user.email }}">

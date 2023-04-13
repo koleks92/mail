@@ -9,13 +9,55 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // By default, load the inbox
   load_mailbox('inbox');
+
+
 });
 
 function email_to_html(obj) {
   const email = document.createElement('div');
-  // Finish
+  email.id = "email";
 
+  const from = document.createElement('div');
+  from.innerHTML = `<b>From:</b> ${obj.sender}`;
+  email.append(from);
 
+  const to = document.createElement('div');
+  to.innerHTML = `<b>To:</b> ${obj.recipients}`;
+  email.append(to);
+
+  const subject = document.createElement('div');
+  subject.innerHTML = `<b>Subject:</b> ${obj.subject}`;
+  email.append(subject);
+
+  const timestamp = document.createElement('div');
+  timestamp.innerHTML = `<b>Timestamp:</b> ${obj.timestamp}`;
+  email.append(timestamp)
+
+  // Get loggedin user email
+  let user_email = document.querySelector('#user_email').textContent;
+  if (obj.sender != user_email) 
+  {
+    const reply = document.createElement('button');
+    reply.classList.add("reply");
+    reply.innerHTML = "Reply";
+
+    // Add event listener
+    reply.addEventListener('click', function() 
+    {
+      reply_email(obj);
+    })
+    email.append(reply);
+
+  }
+
+  const breaker = document.createElement('hr');
+  email.append(breaker);
+
+  const body = document.createElement('div');
+  body.innerHTML = obj.body;
+  email.append(body);
+
+  document.querySelector("#email").appendChild(email);
 
 }
 
@@ -113,10 +155,59 @@ function compose_email()
   document.querySelector('#compose-view').style.display = 'block';
   document.querySelector('#email-view').style.display = 'none';
 
+  // Show the compose name
+  document.querySelector('#compose-title').innerHTML = "New email";
+
   // Clear out composition fields
   document.querySelector('#compose-recipients').value = '';
   document.querySelector('#compose-subject').value = '';
   document.querySelector('#compose-body').value = '';
+
+
+    // Select button and content
+    const recipients = document.querySelector("#compose-recipients");
+    const subject = document.querySelector('#compose-subject');
+    const body = document.querySelector('#compose-body');
+
+
+    document.querySelector('form').onsubmit = () => 
+    {
+      fetch('/emails', 
+      {
+        method: 'POST',
+        body: JSON.stringify
+        ({
+            recipients: recipients.value,
+            subject: subject.value,
+            body: body.value
+        })
+      })
+      .then(response => response.json())
+      .then(result => 
+      {
+          // Print result
+          console.log(result);
+      });
+      return false;
+    }
+}
+
+function reply_email(email) 
+{
+
+  // Show compose view and hide other views
+  document.querySelector('#emails-view').style.display = 'none';
+  document.querySelector('#compose-view').style.display = 'block';
+  document.querySelector('#email-view').style.display = 'none';
+
+  // Show the compose name
+  document.querySelector('#compose-title').innerHTML = "Reply email";
+
+
+  // Clear out composition fields
+  document.querySelector('#compose-recipients').value = email.sender;
+  document.querySelector('#compose-subject').value = `Re: ${email.subject}`;
+  document.querySelector('#compose-body').value = `On ${email.timestamp}, ${email.sender} wrote:` + '<br>' + `"${email.body}"`;
 
 
     // Select button and content
@@ -157,7 +248,7 @@ function load_mailbox(mailbox) {
 
 
   // Show the mailbox name
-  document.querySelector('#title').innerHTML = `${mailbox.charAt(0).toUpperCase() + mailbox.slice(1)}`;
+  document.querySelector('#emails-title').innerHTML = `${mailbox.charAt(0).toUpperCase() + mailbox.slice(1)}`;
 
   // Clear emails to avoid double loading
   document.querySelector('#emails').innerHTML = '';
@@ -216,9 +307,8 @@ function load_email(mail)
   .then(email => {
     // Mark as read
     mark_as_read(email.id);
-
-    document.querySelector('#email-view').innerHTML = email.sender;
-});
+    email_to_html(email);
+  });
 }
 
 
