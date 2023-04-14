@@ -76,19 +76,24 @@ function emails_to_html(obj, arch) {
   {
     email.classList.add("read");
   }
-  email.classList.add("email");
+  {
+    email.classList.add("unread");
+  }
+  email.classList.add("emails_list");
 
   // Create and append for each attribute
   const sender = document.createElement('div');
+  sender.classList.add("emails_sender");
   sender.innerHTML = obj.sender;
   email.append(sender);
 
-  // Subject + link to 
   const subject = document.createElement('div');
+  subject.classList.add("emails_subject");
   subject.innerHTML = obj.subject;
   email.append(subject);
 
   const timestamp = document.createElement('div');
+  timestamp.classList.add("emails_timestamp");
   timestamp.innerHTML = obj.timestamp;
   email.append(timestamp);
 
@@ -96,7 +101,7 @@ function emails_to_html(obj, arch) {
   {
     // Button for archive
   const archive = document.createElement('button');
-  archive.classList.add("archive")
+  archive.classList.add("emails_archive")
   archive.id = obj.id
   if (obj.archived === true)
   {
@@ -187,7 +192,8 @@ function compose_email()
       {
           // Print result
           console.log(result);
-      });
+      })
+      .then(location.reload());
       return false;
     }
 }
@@ -203,14 +209,20 @@ function reply_email(email)
   // Show the compose name
   document.querySelector('#compose-title').innerHTML = "Reply email";
 
-
-  // Clear out composition fields
+  // Populate fields
   document.querySelector('#compose-recipients').value = email.sender;
-  document.querySelector('#compose-subject').value = `Re: ${email.subject}`;
-  document.querySelector('#compose-body').value = `On ${email.timestamp}, ${email.sender} wrote:` + '<br>' + `"${email.body}"`;
+  if (email.subject.startsWith("Re:"))
+  {
+    document.querySelector('#compose-subject').value = email.subject;
+  }
+  else
+  {
+    document.querySelector('#compose-subject').value = `Re: ${email.subject}`;
+  }
+  document.querySelector('#compose-body').value = `On ${email.timestamp}, ${email.sender} wrote: "${email.body}"`;
 
 
-    // Select button and content
+  // Select button and content
     const recipients = document.querySelector("#compose-recipients");
     const subject = document.querySelector('#compose-subject');
     const body = document.querySelector('#compose-body');
@@ -233,7 +245,8 @@ function reply_email(email)
       {
           // Print result
           console.log(result);
-      });
+      })
+      .then(location.reload());
       return false;
     }
 }
@@ -301,6 +314,10 @@ function load_email(mail)
   document.querySelector('#emails-view').style.display = 'none';
   document.querySelector('#compose-view').style.display = 'none';
   document.querySelector('#email-view').style.display = 'block';
+
+  // Clear to avoid double loading
+  document.querySelector('#email').innerHTML = '';
+
 
   fetch(`/emails/${mail}`)
   .then(response => response.json())

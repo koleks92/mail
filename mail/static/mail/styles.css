@@ -4,10 +4,45 @@ textarea {
 
 
 /* Temp for development */
-.email {
+.emails_list {
+    display: flex;
+    align-items: start;
+    padding: 2px 5px;
     border: 1px solid black;
+    justify-content: space-evenly;
+    margin: 2px;
+    
+}
+
+
+
+.emails_sender {
+    width: 20%;
+    font-weight: bold;
+}
+
+.emails_subject {
+
+}
+
+.emails_timestamp {
+    margin-left: auto;
+    font-style: italic;
+}
+
+
+.emails_archive {
+    margin-left: 5px;
+}
+
+
+
+.unread {
+    background-color: rgb(221, 221, 221);
 }
 
 .read {
-    background-color: gainsboro;
+    background-color: white;
 }
+
+
