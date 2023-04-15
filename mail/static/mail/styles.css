@@ -1,41 +1,57 @@
 textarea {
     min-height: 400px;
+    margin-bottom: 15px;
+}
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Load mail */
+
+#emails_heading {
+    display: flex;
+    align-items: start;
+    padding: 5px 5px;
+    margin: 0px 4px;
+    background-color: rgb(239, 239, 239);
+    border-radius: 2px;
+    font-weight: bold;
+    justify-content: space-between;
 }
 
 
-/* Temp for development */
 .emails_list {
     display: flex;
     align-items: start;
     padding: 2px 5px;
-    border: 1px solid black;
+    border: 0px solid rgb(200, 200, 200);
     justify-content: space-evenly;
     margin: 2px;
-    
+    border-radius: 2px;
+    transition: 500ms background-color ease-in-out;
+    align-items: center;
+    height: 34px;
 }
 
-
+.emails_list:hover {
+    background-color: rgb(245, 245, 245);
+}
 
 .emails_sender {
     width: 20%;
     font-weight: bold;
 }
-
-.emails_subject {
-
-}
-
 .emails_timestamp {
-    margin-left: auto;
+    margin-left: 5px;
     font-style: italic;
 }
 
-
 .emails_archive {
-    margin-left: 5px;
+    padding: auto;
+    margin-left: auto;
+    border: 0px
 }
-
-
 
 .unread {
     background-color: rgb(221, 221, 221);
@@ -44,5 +60,6 @@ textarea {
 .read {
     background-color: white;
 }
+
 
 

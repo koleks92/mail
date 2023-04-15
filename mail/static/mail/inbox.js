@@ -33,12 +33,22 @@ function email_to_html(obj) {
   timestamp.innerHTML = `<b>Timestamp:</b> ${obj.timestamp}`;
   email.append(timestamp)
 
+  const breaker_1 = document.createElement('hr');
+  email.append(breaker_1);
+
+  const body = document.createElement('div');
+  body.innerHTML = obj.body;
+  email.append(body);
+
+  const breaker_2 = document.createElement('hr');
+  email.append(breaker_2);
+
   // Get loggedin user email
   let user_email = document.querySelector('#user_email').textContent;
   if (obj.sender != user_email) 
   {
     const reply = document.createElement('button');
-    reply.classList.add("reply");
+    reply.classList.add("reply", "btn", "btn-outline-dark");
     reply.innerHTML = "Reply";
 
     // Add event listener
@@ -50,12 +60,6 @@ function email_to_html(obj) {
 
   }
 
-  const breaker = document.createElement('hr');
-  email.append(breaker);
-
-  const body = document.createElement('div');
-  body.innerHTML = obj.body;
-  email.append(body);
 
   document.querySelector("#email").appendChild(email);
 
@@ -92,25 +96,20 @@ function emails_to_html(obj, arch) {
   subject.innerHTML = obj.subject;
   email.append(subject);
 
-  const timestamp = document.createElement('div');
-  timestamp.classList.add("emails_timestamp");
-  timestamp.innerHTML = obj.timestamp;
-  email.append(timestamp);
-
   if (arch === true) 
   {
     // Button for archive
-  const archive = document.createElement('button');
-  archive.classList.add("emails_archive")
-  archive.id = obj.id
-  if (obj.archived === true)
-  {
-    archive.innerHTML = "Unarchive";
-  }
-  else
-  {
-    archive.innerHTML = "Archive";
-  }
+    const archive = document.createElement('button');
+    archive.classList.add("btn", "btn-sm", "btn-outline-dark", "emails_archive")
+    archive.id = obj.id
+    if (obj.archived === true)
+    {
+      archive.innerHTML = "Unarchive";
+    }
+    else
+    {
+      archive.innerHTML = "Archive";
+    }
 
   // EventListener for button archive
   archive.addEventListener('click', function() 
@@ -142,8 +141,20 @@ function emails_to_html(obj, arch) {
     
   });
   email.append(archive);
-
   }
+  else 
+  {
+    const archive = document.createElement('div');
+    archive.classList.add("emails_archive")
+    email.append(archive);
+  }
+
+  const timestamp = document.createElement('div');
+  timestamp.classList.add("emails_timestamp");
+  timestamp.innerHTML = obj.timestamp;
+  email.append(timestamp);
+
+  
 
   email.addEventListener('click', function() {
     load_email(obj.id)
