@@ -287,8 +287,6 @@ function load_mailbox(mailbox) {
   // Put response into json form
   .then(response => response.json())
   .then(data => {
-      console.log(data);
-      // Log data to the console
       data.forEach(obj => {
         if (mailbox === 'inbox') 
         {
