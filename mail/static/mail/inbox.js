@@ -74,7 +74,7 @@ function mark_as_read(obj) {
   })
 }
 
-function emails_to_html(obj, arch) {
+function emails_to_html(obj, arch, sent) {
   const email = document.createElement('div');
   if (obj.read === true) 
   {
@@ -86,18 +86,25 @@ function emails_to_html(obj, arch) {
   email.classList.add("emails_list");
 
   // Create and append for each attribute
-  const sender = document.createElement('div');
-  sender.classList.add("emails_sender");
-  sender.innerHTML = obj.sender;
-  email.append(sender);
+  if (sent) 
+  {
+    const sender = document.createElement('div');
+    sender.classList.add("emails_sender");
+    sender.innerHTML = obj.recipients;
+    email.append(sender);
+  }
+  else 
+  {
+    const sender = document.createElement('div');
+    sender.classList.add("emails_sender");
+    sender.innerHTML = obj.sender;
+    email.append(sender);
+  }
+
 
   const subject = document.createElement('div');
   subject.classList.add("emails_subject");
   subject.innerHTML = obj.subject;
-
-  subject.addEventListener('click', function() {
-    load_email(obj.id)
-  });
   email.append(subject);
 
   if (arch === true) 
@@ -148,7 +155,7 @@ function emails_to_html(obj, arch) {
   else 
   {
     const archive = document.createElement('div');
-    archive.classList.add("emails_archive")
+    archive.classList.add("emails_archive", "deactiv")
     email.append(archive);
   }
 
@@ -168,7 +175,9 @@ function emails_to_html(obj, arch) {
         element.parentElement.addEventListener('animationend', () => {
           load_mailbox('inbox');
          });
-        
+    }
+    else {
+      load_email(obj.id)
     }
     
   });
@@ -198,6 +207,8 @@ function compose_email()
     const recipients = document.querySelector("#compose-recipients");
     const subject = document.querySelector('#compose-subject');
     const body = document.querySelector('#compose-body');
+    const formattedBody = body.value.replace(/\n/g, '<br>');
+
 
 
     document.querySelector('form').onsubmit = () => 
@@ -209,7 +220,7 @@ function compose_email()
         ({
             recipients: recipients.value,
             subject: subject.value,
-            body: body.value
+            body: formattedBody
         })
       })
       .then(response => response.json())
@@ -217,8 +228,8 @@ function compose_email()
       {
           // Print result
           console.log(result);
+          load_mailbox('sent');
       })
-      .then(location.reload());
       return false;
     }
 }
@@ -271,14 +282,14 @@ function reply_email(email)
           // Print result
           console.log(result);
       })
-      .then(location.reload());
+      .then(load_mailbox('inbox'));
       return false;
     }
 }
 
 
 function load_mailbox(mailbox) {
-  
+
   // Show the mailbox and hide other views
   document.querySelector('#emails-view').style.display = 'block';
   document.querySelector('#compose-view').style.display = 'none';
@@ -294,8 +305,9 @@ function load_mailbox(mailbox) {
 
   // Get loggedin user email
   let user_email = document.querySelector('#user_email').textContent;
-  // Boolean for archvie button
+  // Boolean for archvie button and sent
   let arch = true;
+  let sent = true;
 
   fetch(`/emails/${mailbox}`)
   // Put response into json form
@@ -306,16 +318,19 @@ function load_mailbox(mailbox) {
         {
           if (obj.archived === false)
           {
-            arch = true;
-            emails_to_html(obj, arch);
+            sent = false;
+            emails_to_html(obj, arch, sent);
+            document.querySelector("#eh_from").innerHTML = "From";
+
           }
         }
         else if (mailbox === 'archive') 
         {
           if (obj.archived === true) 
           {
-            arch = true;
-            emails_to_html(obj, arch);
+            sent = false;
+            emails_to_html(obj, arch, sent);
+            document.querySelector("#eh_from").innerHTML = "From";
           }
         }
         if (mailbox === 'sent') 
@@ -323,7 +338,8 @@ function load_mailbox(mailbox) {
           if (obj.sender === user_email)
           {
             arch = false;
-            emails_to_html(obj, arch);
+            emails_to_html(obj, arch, sent);
+            document.querySelector("#eh_from").innerHTML = "To";
           }
         }        
       });
@@ -333,6 +349,7 @@ function load_mailbox(mailbox) {
 
 function load_email(mail)
 {
+
   // Show the mailbox and hide other views
   document.querySelector('#emails-view').style.display = 'none';
   document.querySelector('#compose-view').style.display = 'none';

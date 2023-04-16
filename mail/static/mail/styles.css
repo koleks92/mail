@@ -23,6 +23,15 @@
     }
 }
 
+@keyframes inout {
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 0;
+    }
+}
+
 textarea {
     min-height: 400px;
     margin-bottom: 15px;
@@ -80,7 +89,7 @@ textarea {
 }
 
 .unread {
-    background-color: rgb(221, 221, 221);
+    background-color: rgb(236, 236, 236);
 }
 
 .read {
