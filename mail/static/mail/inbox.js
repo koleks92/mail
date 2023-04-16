@@ -94,6 +94,10 @@ function emails_to_html(obj, arch) {
   const subject = document.createElement('div');
   subject.classList.add("emails_subject");
   subject.innerHTML = obj.subject;
+
+  subject.addEventListener('click', function() {
+    load_email(obj.id)
+  });
   email.append(subject);
 
   if (arch === true) 
@@ -111,36 +115,35 @@ function emails_to_html(obj, arch) {
       archive.innerHTML = "Archive";
     }
 
-  // EventListener for button archive
-  archive.addEventListener('click', function() 
-  {
-    if (archive.textContent === "Archive")
-    { // Set archived true
-      fetch(`/emails/${obj.id}`, 
-      {
-        method: 'PUT',
-        body: JSON.stringify
-        ({
-            archived: true
+    // EventListener for button archive
+    archive.addEventListener('click', function() 
+    {
+      if (archive.textContent === "Archive")
+      { // Set archived true
+        fetch(`/emails/${obj.id}`, 
+        {
+          method: 'PUT',
+          body: JSON.stringify
+          ({
+              archived: true
+          })
         })
-      })
-      .then(location.reload());
-    }
-    else
-    { // Set archived false
-      fetch(`/emails/${obj.id}`,
-      {
-        method: 'PUT',
-        body: JSON.stringify
-        ({
-            archived: false
+      }
+      else
+      { // Set archived false
+        fetch(`/emails/${obj.id}`,
+        {
+          method: 'PUT',
+          body: JSON.stringify
+          ({
+              archived: false
+          })
         })
-      })
-      .then(location.reload());
-    }
-    
-  });
-  email.append(archive);
+      }
+      
+    });
+
+    email.append(archive);
   }
   else 
   {
@@ -154,11 +157,22 @@ function emails_to_html(obj, arch) {
   timestamp.innerHTML = obj.timestamp;
   email.append(timestamp);
 
-  
+  email.addEventListener('click', event => {
 
-  email.addEventListener('click', function() {
-    load_email(obj.id)
+    // Find what was clicked on
+    const element = event.target;
+    console.log(element.className);
+    // Check if the user clicked on a hide button
+    if (element.className == 'btn btn-sm btn-outline-dark emails_archive') {
+        element.parentElement.style.animationPlayState = 'running';
+        element.parentElement.addEventListener('animationend', () => {
+          load_mailbox('inbox');
+         });
+        
+    }
+    
   });
+
   
   // Send whole div to html
   document.querySelector("#emails").appendChild(email);

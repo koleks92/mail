@@ -1,11 +1,33 @@
+@keyframes hide {
+    0% {
+        opacity: 1;
+        height: 100%;
+        padding: 2px 5px;
+        margin: 2px;
+        height: 34px;
+    }
+    75% {
+        opacity: 0;
+        height: 100%;
+        padding: 2px 5px;
+        margin: 2px;
+        height: 34px
+    }
+    100% {
+        opacity: 0;
+        height: 0px;
+        line-height: 0px;
+        padding: 0px;
+        margin-bottom: 0px;
+        height: 0px
+    }
+}
+
 textarea {
     min-height: 400px;
     margin-bottom: 15px;
 }
 
-body {
-    font-family: Arial, Helvetica, sans-serif;
-}
 
 /* Load mail */
 
@@ -32,6 +54,10 @@ body {
     transition: 500ms background-color ease-in-out;
     align-items: center;
     height: 34px;
+    animation-name: hide;
+    animation-duration: 1s;
+    animation-fill-mode: forwards;
+    animation-play-state: paused;
 }
 
 .emails_list:hover {
@@ -50,7 +76,7 @@ body {
 .emails_archive {
     padding: auto;
     margin-left: auto;
-    border: 0px
+    border: 0px;
 }
 
 .unread {
