@@ -202,17 +202,15 @@ function compose_email()
   document.querySelector('#compose-subject').value = '';
   document.querySelector('#compose-body').value = '';
 
-
-    // Select button and content
-    const recipients = document.querySelector("#compose-recipients");
-    const subject = document.querySelector('#compose-subject');
-    const body = document.querySelector('#compose-body');
-    const formattedBody = body.value.replace(/\n/g, '<br>');
-
-
-
     document.querySelector('form').onsubmit = () => 
     {
+      // Select button and content
+      const recipients = document.querySelector("#compose-recipients");
+      const subject = document.querySelector('#compose-subject');
+      const body = document.querySelector('#compose-body');
+      // To keep formatting in email_view
+      const encodedBody= body.value.replace(/\n/g, '<br>').replace(/\r/g, '<br>').replace(/\t/g, '&emsp');
+
       fetch('/emails', 
       {
         method: 'POST',
@@ -220,7 +218,7 @@ function compose_email()
         ({
             recipients: recipients.value,
             subject: subject.value,
-            body: formattedBody
+            body: encodedBody
         })
       })
       .then(response => response.json())
@@ -228,7 +226,10 @@ function compose_email()
       {
           // Print result
           console.log(result);
-          load_mailbox('sent');
+          // Delay to prevent from too early loading load_mailbox
+          setTimeout(() => {
+            load_mailbox('sent');
+          }, 200);
       })
       return false;
     }
@@ -255,17 +256,20 @@ function reply_email(email)
   {
     document.querySelector('#compose-subject').value = `Re: ${email.subject}`;
   }
-  document.querySelector('#compose-body').value = `On ${email.timestamp}, ${email.sender} wrote: "${email.body}"`;
-
-
-  // Select button and content
-    const recipients = document.querySelector("#compose-recipients");
-    const subject = document.querySelector('#compose-subject');
-    const body = document.querySelector('#compose-body');
+  // To decode formatting
+  const decodedBody = email.body.replace(/<br>/g, '\n').replace(/&emsp/g, '\t');
+  document.querySelector('#compose-body').value = `On ${email.timestamp}, ${email.sender} wrote: ${'\n'}"${decodedBody}"${'\n'}`;
 
 
     document.querySelector('form').onsubmit = () => 
     {
+      // Select button and content
+      const recipients = document.querySelector("#compose-recipients");
+      const subject = document.querySelector('#compose-subject');
+      const body = document.querySelector('#compose-body');
+      // To keep formatting in email_view
+      const encodedBody= body.value.replace(/\n/g, '<br>').replace(/\r/g, '<br>').replace(/\t/g, '&emsp');
+
       fetch('/emails', 
       {
         method: 'POST',
@@ -273,7 +277,7 @@ function reply_email(email)
         ({
             recipients: recipients.value,
             subject: subject.value,
-            body: body.value
+            body: encodedBody
         })
       })
       .then(response => response.json())
@@ -281,8 +285,11 @@ function reply_email(email)
       {
           // Print result
           console.log(result);
+          // Delay to prevent from too early loading load_mailbox
+          setTimeout(() => {
+            load_mailbox('sent');
+          }, 200);
       })
-      .then(load_mailbox('inbox'));
       return false;
     }
 }
